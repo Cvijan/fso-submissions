@@ -59,6 +59,9 @@ const App = () => {
         setPersons([...persons, data])
         showNotification(`Added ${data.name}`, 'success', 5000)
       })
+      .catch(() => {
+        showNotification(`Information of ${newEntry.name} could not be added`, 'error', 5000)
+      })
 
     
     setNewName('')
