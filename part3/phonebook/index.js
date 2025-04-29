@@ -1,5 +1,8 @@
 const express = require('express')
 const app = express()
+const morgan = require('morgan')
+
+morgan.token('body', function (req, res) { return JSON.stringify(req.body) })
 
 let persons = [
     { 
@@ -25,6 +28,16 @@ let persons = [
 ]
 
 app.use(express.json())
+app.use(morgan(function (tokens, req, res) {
+    return [
+      tokens.method(req, res),
+      tokens.url(req, res),
+      tokens.status(req, res),
+      tokens.res(req, res, 'content-length'), '-',
+      tokens['response-time'](req, res), 'ms',
+      tokens.body(req, res)
+    ].join(' ')
+  }))
 
 app.get('/api/persons', (req, res) => {
     res.json(persons)
@@ -49,7 +62,6 @@ app.delete('/api/persons/:id', (req, res) => {
 })
 
 app.post('/api/persons', (req, res) => {
-    console.log(req.body)
     if(!req.body.number){
         return res.status(400).send({ error:'Missing number field' })
     }
