@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 
-const persons = [
+let persons = [
     { 
       "id": "1",
       "name": "Arto Hellas", 
@@ -24,6 +24,8 @@ const persons = [
     }
 ]
 
+app.use(express.json())
+
 app.get('/api/persons', (req, res) => {
     res.json(persons)
 })
@@ -37,6 +39,35 @@ app.get('/api/persons/:id', (req, res) => {
     }
 
     return res.json(person)
+})
+
+app.delete('/api/persons/:id', (req, res) => {
+    const id = req.params.id
+    persons = persons.filter(p => p.id != id)
+
+    res.status(204).send()
+})
+
+app.post('/api/persons', (req, res) => {
+    console.log(req.body)
+    if(!req.body.number){
+        return res.status(400).send({ error:'Missing number field' })
+    }
+    if(!req.body.name){
+        return res.status(400).send({ error:'Missing name field' })
+    }
+    if(persons.map(p => p.name).includes(req.body.name)){
+        return res.status(400).send({ error:'name must be unique' })
+    }
+
+    const person = {
+        id: Math.round(Math.random() * 1000000),
+        number: req.body.number,
+        name: req.body.name
+    }
+
+    persons = persons.concat(person)
+    return res.status(201).send(person)
 })
 
 app.get('/info', (req, res) => {
